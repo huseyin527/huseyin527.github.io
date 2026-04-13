@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathLab — İnteraktif Matematik</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C; --blue-900: #042C53;
+  --teal-50: #E1F5EE; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-900: #04342C;
+  --amber-50: #FAEEDA; --amber-400: #EF9F27; --amber-600: #854F0B;
+  --purple-50: #EEEDFE; --purple-400: #7F77DD; --purple-600: #534AB7; --purple-900: #26215C;
+  --coral-50: #FAECE7; --coral-400: #D85A30; --coral-600: #993C1D;
+  --green-50: #EAF3DE; --green-400: #639922; --green-600: #3B6D11;
+  --gray-50: #F8F7F4; --gray-100: #EDEDEA; --gray-200: #D3D1C7; --gray-600: #5F5E5A; --gray-900: #1A1A18;
+  --bg: #F8F7F4;
+  --surface: #FFFFFF;
+  --text: #1A1A18;
+  --text-muted: #5F5E5A;
+  --border: rgba(0,0,0,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+code, .mono { font-family: 'DM Mono', monospace; }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between; height: 60px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px; color: var(--blue-900); text-decoration: none;
+}
+.logo-badge {
+  width: 32px; height: 32px; background: var(--blue-900); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
+}
+.nav-links { display: flex; gap: 0.25rem; }
+.nav-links a {
+  padding: 7px 14px; border-radius: 7px; font-size: 14px; font-weight: 400;
+  color: var(--text-muted); text-decoration: none; cursor: pointer; transition: all 0.15s;
+}
+.nav-links a:hover, .nav-links a.active { background: var(--gray-100); color: var(--text); }
+.nav-right { display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.btn-primary { background: var(--blue-900); color: #fff; }
+.btn-primary:hover { background: var(--blue-800); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--gray-100); }
+
+/* ── PAGE SYSTEM ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--blue-900);
+  padding: 6rem 2rem 5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.hero-glow {
+  position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(55,138,221,0.3) 0%, transparent 70%);
+}
+.hero-content { position: relative; max-width: 700px; margin: 0 auto; }
+.hero-pill {
+  display: inline-block; background: rgba(55,138,221,0.2); color: #85B7EB;
+  border: 1px solid rgba(55,138,221,0.3); border-radius: 20px;
+  padding: 5px 16px; font-size: 13px; margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 52px; line-height: 1.15; color: #fff; margin-bottom: 1.25rem;
+}
+.hero h1 em { color: #85B7EB; font-style: normal; }
+.hero p { font-size: 17px; color: rgba(255,255,255,0.65); max-width: 520px; margin: 0 auto 2.5rem; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-hero { background: #fff; color: var(--blue-900); padding: 12px 28px; font-size: 15px; font-weight: 500; border-radius: 9px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.btn-hero:hover { background: var(--blue-50); }
+.btn-hero-outline { background: transparent; color: #fff; padding: 12px 28px; font-size: 15px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.3); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.btn-hero-outline:hover { background: rgba(255,255,255,0.08); }
+
+.stats-row {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+}
+.stat { padding: 1.5rem 3rem; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-n { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--blue-600); }
+.stat-l { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── SECTION ── */
+.section { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+.section-header { margin-bottom: 2.5rem; }
+.section-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-600); background: var(--blue-50); padding: 4px 12px; border-radius: 20px; margin-bottom: 0.75rem; }
+.section-header h2 { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 0.5rem; }
+.section-header p { color: var(--text-muted); font-size: 15px; }
+
+/* ── TOPIC CARDS ── */
+.topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.topic-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.5rem; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+}
+.topic-card:hover { border-color: var(--blue-400); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(24,95,165,0.1); }
+.tc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+.tc-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.tc-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.bg-blue { background: var(--blue-50); } .c-blue { color: var(--blue-600); }
+.bg-teal { background: var(--teal-50); } .c-teal { color: var(--teal-600); }
+.bg-amber { background: var(--amber-50); } .c-amber { color: var(--amber-600); }
+.bg-purple { background: var(--purple-50); } .c-purple { color: var(--purple-600); }
+.bg-coral { background: var(--coral-50); } .c-coral { color: var(--coral-600); }
+.bg-green { background: var(--green-50); } .c-green { color: var(--green-600); }
+.topic-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.topic-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.tc-meta { margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; }
+.tc-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--gray-100); color: var(--text-muted); }
+.tc-arrow { font-size: 16px; color: var(--blue-400); }
+
+/* ── FEATURED TOOL ── */
+.featured-tool {
+  background: var(--blue-900); color: #fff; border-radius: 16px;
+  padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+  margin-top: 3rem;
+}
+.ft-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #85B7EB; margin-bottom: 1rem; }
+.ft-title { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 1rem; }
+.ft-desc { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.7; margin-bottom: 1.5rem; }
+.ft-demo { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.5rem; }
+.ft-formula { font-family: 'DM Mono', monospace; font-size: 18px; color: #85B7EB; text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 0.75rem; }
+
+/* ── TOOL PAGES ── */
+.tool-page { max-width: 1000px; margin: 0 auto; padding: 3rem 2rem; }
+.tool-header { margin-bottom: 2rem; }
+.tool-header h1 { font-family: 'DM Serif Display', serif; font-size: 36px; margin-bottom: 0.5rem; }
+.tool-header p { color: var(--text-muted); font-size: 15px; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem; }
+.tool-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; }
+
+/* Controls */
+.ctrl-row { display: flex; align-items: center; gap: 16px; margin-bottom: 1rem; flex-wrap: wrap; }
+.ctrl-label { font-size: 13px; color: var(--text-muted); min-width: 80px; }
+.ctrl-val { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; min-width: 48px; }
+input[type=range] { flex: 1; min-width: 120px; accent-color: var(--blue-600); }
+input[type=text], input[type=number], select, textarea {
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px;
+  font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); outline: none;
+}
+input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus { border-color: var(--blue-400); }
+select { cursor: pointer; }
+
+/* Canvas */
+canvas { border-radius: 8px; border: 1px solid var(--border); display: block; width: 100%; }
+
+/* Result boxes */
+.result-box { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 10px; padding: 1.25rem; margin-top: 1rem; }
+.result-box .big-num { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--blue-800); }
+.result-box .big-label { font-size: 13px; color: var(--blue-600); margin-top: 4px; }
+
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 1rem; }
+.info-tile { background: var(--gray-50); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+.info-tile .num { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: var(--blue-600); }
+.info-tile .lbl { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.matrix-grid { display: inline-grid; gap: 8px; }
+.matrix-cell { width: 60px; height: 40px; text-align: center; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 14px; }
+.matrix-result { background: var(--teal-50); border: 1px solid #9FE1CB; border-radius: 10px; padding: 1.25rem; margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 15px; color: var(--teal-900); }
+
+.formula-display { background: var(--gray-900); color: #85B7EB; font-family: 'DM Mono', monospace; border-radius: 10px; padding: 1.25rem; font-size: 16px; text-align: center; margin-bottom: 1rem; }
+.formula-display b { color: #EF9F27; }
+
+.seq-output { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+.seq-badge { background: var(--purple-50); color: var(--purple-600); border: 1px solid #CECBF6; border-radius: 8px; padding: 6px 14px; font-family: 'DM Mono', monospace; font-size: 14px; }
+
+.prob-bar-wrap { margin: 1rem 0; }
+.prob-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.prob-bar { height: 10px; border-radius: 5px; background: var(--gray-100); overflow: hidden; }
+.prob-fill { height: 100%; border-radius: 5px; transition: width 0.4s; }
+
+.formula-lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.formula-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; }
+.formula-item .fi-tag { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.formula-item .fi-name { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.formula-item .fi-expr { font-family: 'DM Mono', monospace; font-size: 15px; background: var(--gray-50); border-radius: 6px; padding: 8px 12px; color: var(--blue-800); }
+.formula-item .fi-desc { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+/* Hakkında */
+.about-hero { background: var(--blue-900); color: #fff; padding: 4rem 2rem; text-align: center; }
+.about-hero h1 { font-family: 'DM Serif Display', serif; font-size: 40px; margin-bottom: 1rem; }
+.about-hero p { color: rgba(255,255,255,0.7); font-size: 16px; max-width: 560px; margin: 0 auto; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 2rem; }
+.team-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+.avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; margin: 0 auto 0.75rem; }
+.team-card h4 { font-size: 15px; font-weight: 600; }
+.team-card p { font-size: 12px; color: var(--text-muted); }
+.feature-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 1.5rem; }
+.feature-list li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.feature-list li span { font-size: 18px; flex-shrink: 0; }
+
+/* Footer */
+footer { background: var(--blue-900); color: rgba(255,255,255,0.5); text-align: center; padding: 2rem; font-size: 13px; margin-top: 4rem; }
+footer strong { color: #85B7EB; }
+
+/* Two-col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } .featured-tool { grid-template-columns: 1fr; } .hero h1 { font-size: 36px; } }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+.tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+
+.gray-900 { background: #1A1A18; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#" onclick="showPage('home')">
+    <div class="logo-badge">π</div>
+    MathLab
+  </a>
+  <div class="nav-links">
+    <a onclick="showPage('home')" id="nav-home" class="active">Anasayfa</a>
+    <a onclick="showPage('turev')" id="nav-turev">Türev & İntegral</a>
+    <a onclick="showPage('istatistik')" id="nav-istatistik">İstatistik</a>
+    <a onclick="showPage('lineer')" id="nav-lineer">Lineer Cebir</a>
+    <a onclick="showPage('dizi')" id="nav-dizi">Diziler</a>
+    <a onclick="showPage('formuller')" id="nav-formuller">Formüller</a>
+    <a onclick="showPage('hakkinda')" id="nav-hakkinda">Hakkında</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="showPage('formuller')">Formül Kütüphanesi</button>
+  </div>
+</nav>
+
+<!-- ═══════════ ANASAYFA ═══════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-pill">Bilgisayar Programcılığı · Araştırma Yöntemleri</div>
+      <h1>Matematiği<br><em>Görsel Keşfet</em></h1>
+      <p>Türev, integral, istatistik, lineer cebir ve daha fazlasını interaktif araçlarla öğren. Formülleri canlı hesapla, grafikleri anlık çiz.</p>
+      <div class="hero-btns">
+        <button class="btn-hero" onclick="showPage('turev')">Konulara Başla</button>
+        <button class="btn-hero-outline" onclick="showPage('formuller')">Formül Kütüphanesi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n">6</div><div class="stat-l">Konu Modülü</div></div>
+    <div class="stat"><div class="stat-n">15+</div><div class="stat-l">İnteraktif Araç</div></div>
+    <div class="stat"><div class="stat-n">80+</div><div class="stat-l">Formül</div></div>
+    <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Ücretsiz</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Tüm Modüller</div>
+      <h2>Konu Başlıkları</h2>
+      <p>Her modülde interaktif hesap araçları ve görsel grafikler bulunmaktadır</p>
+    </div>
+    <div class="topic-grid">
+      <div class="topic-card" onclick="showPage('turev')">
+        <div class="tc-header">
+          <div class="tc-icon bg-blue" style="font-size:24px">∫</div>
+          <span class="tc-badge bg-blue c-blue">Analiz</span>
+        </div>
+        <h3>Türev ve İntegral</h3>
+        <p>Limitler, türev kuralları, türev grafikleri ve integral hesaplama araçları.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">Limit</span><span class="pill">Türev</span><span class="pill">İntegral</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+      <div class="topic-card" onclick="showPage('istatistik')">
+        <div class="tc-header">
+          <div class="tc-icon bg-teal" style="font-size:22px">σ</div>
+          <span class="tc-badge bg-teal c-teal">İstatistik</span>
+        </div>
+        <h3>İstatistik & Olasılık</h3>
+        <p>Ortalama, medyan, standart sapma hesaplamaları ve olasılık dağılımları.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">Ortalama</span><span class="pill">Dağılım</span><span class="pill">Olasılık</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+      <div class="topic-card" onclick="showPage('lineer')">
+        <div class="tc-header">
+          <div class="tc-icon bg-purple" style="font-size:18px">A⁻¹</div>
+          <span class="tc-badge bg-purple c-purple">Cebir</span>
+        </div>
+        <h3>Lineer Cebir</h3>
+        <p>Matris çarpımı, determinant, ters matris ve doğrusal denklem sistemleri çözümü.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">Matris</span><span class="pill">Determinant</span><span class="pill">Vektör</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+      <div class="topic-card" onclick="showPage('dizi')">
+        <div class="tc-header">
+          <div class="tc-icon bg-amber" style="font-size:22px">∑</div>
+          <span class="tc-badge bg-amber c-amber">Dizi</span>
+        </div>
+        <h3>Sayı Dizileri & Seriler</h3>
+        <p>Aritmetik ve geometrik diziler, Fibonacci, özyinelemeli diziler ve kısmi toplamlar.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">Aritmetik</span><span class="pill">Geometrik</span><span class="pill">Fibonacci</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+      <div class="topic-card" onclick="showPage('formuller')">
+        <div class="tc-header">
+          <div class="tc-icon bg-coral" style="font-size:20px">f(x)</div>
+          <span class="tc-badge bg-coral c-coral">Kütüphane</span>
+        </div>
+        <h3>Formül Kütüphanesi</h3>
+        <p>Tüm konulara ait temel formüller hızlı referans için kategorilere ayrılmış şekilde.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">Referans</span><span class="pill">80+ Formül</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+      <div class="topic-card" onclick="showPage('hakkinda')">
+        <div class="tc-header">
+          <div class="tc-icon bg-green" style="font-size:22px">ℹ</div>
+          <span class="tc-badge bg-green c-green">Proje</span>
+        </div>
+        <h3>Proje Hakkında</h3>
+        <p>MathLab'ın amacı, kullanılan teknolojiler ve geliştirme süreci hakkında bilgi.</p>
+        <div class="tc-meta">
+          <div class="tc-pills"><span class="pill">HTML/CSS</span><span class="pill">Vanilla JS</span></div>
+          <span class="tc-arrow">→</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="featured-tool">
+      <div>
+        <div class="ft-label">Öne Çıkan Araç</div>
+        <div class="ft-title">Canlı Fonksiyon Grafikleyici</div>
+        <div class="ft-desc">Türev sayfasında fonksiyon girin, anlık olarak grafiğini ve türevini görün. Parametreleri kaydırarak eğrinin nasıl değiştiğini izleyin.</div>
+        <button class="btn-hero" onclick="showPage('turev')">Türev Sayfasına Git →</button>
+      </div>
+      <div class="ft-demo">
+        <div class="ft-formula">f(x) = ax² + bx + c</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:0.75rem">f ′(x) = 2ax + b</div>
+        <canvas id="heroCanvas" height="140"></canvas>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <strong>MathLab</strong> — Bilgisayar Programcılığı Bölümü · Araştırma Yöntemleri Teknikleri Dersi Projesi · 2025
+  </footer>
+</div>
+
+<!-- ═══════════ TÜREV & İNTEGRAL ═══════════ -->
+<div id="page-turev" class="page">
+  <div class="tool-page">
+    <div class="tool-header">
+      <div class="tag-row">
+        <span class="tag bg-blue c-blue">Analiz</span>
+        <span class="tag" style="background:var(--gray-100);color:var(--text-muted)">İnteraktif Araç</span>
+      </div>
+      <h1>Türev ve İntegral</h1>
+      <p>Fonksiyon grafiklerini çiz, türev ve integral hesapla</p>
+    </div>
+
+    <!-- Polinom Türev Hesaplayıcı -->
+    <div class="tool-card">
+      <h3>📈 İkinci Dereceden Fonksiyon Grafikleyici</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">f(x) = ax² + bx + c formundaki fonksiyonu ve türevini görselleştir</p>
+      <div class="ctrl-row">
+        <span class="ctrl-label">a =</span>
+        <input type="range" id="ta" min="-5" max="5" step="0.5" value="1" oninput="drawTurev()">
+        <span class="ctrl-val" id="ta-v">1</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">b =</span>
+        <input type="range" id="tb" min="-10" max="10" step="1" value="0" oninput="drawTurev()">
+        <span class="ctrl-val" id="tb-v">0</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">c =</span>
+        <input type="range" id="tc" min="-10" max="10" step="1" value="0" oninput="drawTurev()">
+        <span class="ctrl-val" id="tc-v">0</span>
+      </div>
+      <div id="turev-formula" class="formula-display" style="background:#1A1A18">f(x) = <b>x²</b></div>
+      <canvas id="turevCanvas" height="280"></canvas>
+      <div class="info-grid" id="turev-info">
+        <div class="info-tile"><div class="num" id="vertex-x">0</div><div class="lbl">Tepe noktası x</div></div>
+        <div class="info-tile"><div class="num" id="vertex-y">0</div><div class="lbl">Tepe noktası y</div></div>
+        <div class="info-tile"><div class="num" id="disc">0</div><div class="lbl">Diskriminant</div></div>
+        <div class="info-tile"><div class="num" id="root-count">1</div><div class="lbl">Kök sayısı</div></div>
+      </div>
+    </div>
+
+    <!-- Türev Kuralları -->
+    <div class="tool-card">
+      <h3>📐 Türev Kuralları Referansı</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:0.5rem">
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Kuvvet Kuralı</div>
+          <div class="mono" style="font-size:16px;color:var(--blue-800)">(xⁿ)′ = n·xⁿ⁻¹</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Çarpım Kuralı</div>
+          <div class="mono" style="font-size:15px;color:var(--blue-800)">(u·v)′ = u′v + uv′</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Bölüm Kuralı</div>
+          <div class="mono" style="font-size:14px;color:var(--blue-800)">(u/v)′ = (u′v−uv′)/v²</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Zincir Kuralı</div>
+          <div class="mono" style="font-size:15px;color:var(--blue-800)">(f∘g)′ = f′(g)·g′</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">sin türevi</div>
+          <div class="mono" style="font-size:16px;color:var(--teal-600)">(sin x)′ = cos x</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">cos türevi</div>
+          <div class="mono" style="font-size:16px;color:var(--teal-600)">(cos x)′ = −sin x</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">eˣ türevi</div>
+          <div class="mono" style="font-size:16px;color:var(--amber-600)">(eˣ)′ = eˣ</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:1rem">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">ln x türevi</div>
+          <div class="mono" style="font-size:16px;color:var(--amber-600)">(ln x)′ = 1/x</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- İntegral hesaplayıcı -->
+    <div class="tool-card">
+      <h3>∫ Belirli İntegral Hesaplayıcı (Sayısal)</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">f(x) = axⁿ formundaki fonksiyonun [a,b] aralığında belirli integralini hesaplar</p>
+      <div class="two-col">
+        <div>
+          <div class="ctrl-row"><span class="ctrl-label">Katsayı a</span><input type="number" id="int-a" value="1" style="width:80px"></div>
+          <div class="ctrl-row"><span class="ctrl-label">Üs n</span><input type="number" id="int-n" value="2" style="width:80px"></div>
+          <div class="ctrl-row"><span class="ctrl-label">Alt sınır</span><input type="number" id="int-from" value="0" style="width:80px"></div>
+          <div class="ctrl-row"><span class="ctrl-label">Üst sınır</span><input type="number" id="int-to" value="3" style="width:80px"></div>
+          <button class="btn btn-primary" onclick="calcIntegral()" style="margin-top:0.5rem">Hesapla</button>
+        </div>
+        <div>
+          <div id="int-formula" class="formula-display" style="background:#1A1A18;font-size:15px">∫₀³ x² dx</div>
+          <div class="result-box">
+            <div class="big-num" id="int-result">9</div>
+            <div class="big-label">Belirli integral değeri</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:8px" id="int-steps"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer><strong>MathLab</strong> — Türev & İntegral Modülü</footer>
+</div>
+
+<!-- ═══════════ İSTATİSTİK ═══════════ -->
+<div id="page-istatistik" class="page">
+  <div class="tool-page">
+    <div class="tool-header">
+      <div class="tag-row"><span class="tag bg-teal c-teal">İstatistik</span></div>
+      <h1>İstatistik & Olasılık</h1>
+      <p>Veri kümesi gir, istatistiksel ölçüleri otomatik hesapla</p>
+    </div>
+
+    <div class="tool-card">
+      <h3>📊 Betimsel İstatistik Hesaplayıcı</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Sayıları virgülle ayırarak girin (örn: 4, 8, 15, 16, 23, 42)</p>
+      <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+        <input type="text" id="stat-input" value="4, 8, 15, 16, 23, 42" style="flex:1;min-width:200px" oninput="calcStats()">
+        <button class="btn btn-primary" onclick="calcStats()">Hesapla</button>
+        <button class="btn btn-ghost" onclick="randomStats()">Rastgele Veri</button>
+      </div>
+      <div class="info-grid" id="stat-grid">
+        <div class="info-tile"><div class="num" id="s-mean">—</div><div class="lbl">Aritmetik Ortalama (x̄)</div></div>
+        <div class="info-tile"><div class="num" id="s-median">—</div><div class="lbl">Medyan</div></div>
+        <div class="info-tile"><div class="num" id="s-mode">—</div><div class="lbl">Mod</div></div>
+        <div class="info-tile"><div class="num" id="s-std">—</div><div class="lbl">Standart Sapma (σ)</div></div>
+        <div class="info-tile"><div class="num" id="s-var">—</div><div class="lbl">Varyans (σ²)</div></div>
+        <div class="info-tile"><div class="num" id="s-range">—</div><div class="lbl">Ranj (max−min)</div></div>
+        <div class="info-tile"><div class="num" id="s-min">—</div><div class="lbl">Minimum</div></div>
+        <div class="info-tile"><div class="num" id="s-max">—</div><div class="lbl">Maksimum</div></div>
+      </div>
+      <canvas id="statCanvas" height="200" style="margin-top:1rem"></canvas>
+    </div>
+
+    <div class="tool-card">
+      <h3>🎲 Olasılık Hesaplayıcı</h3>
+      <div class="two-col">
+        <div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Kombinasyon ve permütasyon</p>
+          <div class="ctrl-row"><span class="ctrl-label">n =</span><input type="number" id="prob-n" value="10" min="1" max="30" style="width:70px" oninput="calcProb()"></div>
+          <div class="ctrl-row"><span class="ctrl-label">r =</span><input type="number" id="prob-r" value="3" min="0" max="30" style="width:70px" oninput="calcProb()"></div>
+          <div class="result-box" style="margin-top:0.5rem">
+            <div style="font-size:13px;color:var(--blue-600);margin-bottom:6px">C(n,r) — Kombinasyon</div>
+            <div class="big-num" id="comb-val">120</div>
+          </div>
+          <div class="result-box" style="margin-top:0.75rem;background:var(--teal-50);border-color:#9FE1CB">
+            <div style="font-size:13px;color:var(--teal-600);margin-bottom:6px">P(n,r) — Permütasyon</div>
+            <div class="big-num" style="color:var(--teal-900)" id="perm-val">720</div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Zar olasılıkları (1d6)</p>
+          <div id="dice-bars"></div>
+          <button class="btn btn-ghost" onclick="rollDice()" style="margin-top:1rem;width:100%">🎲 Zar At (100 kez)</button>
+          <div id="dice-result" style="font-size:13px;color:var(--text-muted);margin-top:8px;text-align:center"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>📉 Normal Dağılım (Çan Eğrisi)</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Ortalama μ</span>
+        <input type="range" id="nd-mu" min="-5" max="5" step="0.5" value="0" oninput="drawNormal()">
+        <span class="ctrl-val" id="nd-mu-v">0</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Std Sapma σ</span>
+        <input type="range" id="nd-sigma" min="0.5" max="4" step="0.5" value="1" oninput="drawNormal()">
+        <span class="ctrl-val" id="nd-sigma-v">1</span>
+      </div>
+      <canvas id="normalCanvas" height="220"></canvas>
+    </div>
+  </div>
+  <footer><strong>MathLab</strong> — İstatistik & Olasılık Modülü</footer>
+</div>
+
+<!-- ═══════════ LİNEER CEBİR ═══════════ -->
+<div id="page-lineer" class="page">
+  <div class="tool-page">
+    <div class="tool-header">
+      <div class="tag-row"><span class="tag bg-purple c-purple">Lineer Cebir</span></div>
+      <h1>Lineer Cebir</h1>
+      <p>Matris işlemleri, determinant ve doğrusal denklem sistemleri</p>
+    </div>
+
+    <div class="tool-card">
+      <h3>🔢 2×2 Matris İşlemleri</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">A ve B matrislerini girin, işlem seçin</p>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Matris A</div>
+          <div class="matrix-grid" style="grid-template-columns:repeat(2,1fr)">
+            <input class="matrix-cell" id="a11" value="1" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="a12" value="2" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="a21" value="3" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="a22" value="4" type="number" oninput="calcMatrix()">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Matris B</div>
+          <div class="matrix-grid" style="grid-template-columns:repeat(2,1fr)">
+            <input class="matrix-cell" id="b11" value="5" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="b12" value="6" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="b21" value="7" type="number" oninput="calcMatrix()">
+            <input class="matrix-cell" id="b22" value="8" type="number" oninput="calcMatrix()">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">İşlem</div>
+          <select id="mat-op" onchange="calcMatrix()" style="width:140px">
+            <option value="add">A + B (Toplam)</option>
+            <option value="sub">A − B (Fark)</option>
+            <option value="mul" selected>A × B (Çarpım)</option>
+            <option value="deta">det(A)</option>
+            <option value="detb">det(B)</option>
+            <option value="inva">A⁻¹ (Ters)</option>
+            <option value="tra">Aᵀ (Devrik)</option>
+          </select>
+        </div>
+      </div>
+      <div class="matrix-result" id="mat-result">Sonuç burada görünür</div>
+    </div>
+
+    <div class="tool-card">
+      <h3>🔍 Doğrusal Denklem Sistemi Çözücü (2×2)</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Cramer yöntemi ile çözer</p>
+      <div style="font-size:14px;margin-bottom:0.75rem;font-family:'DM Mono',monospace">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <input class="matrix-cell" id="e11" value="2" type="number" style="width:50px">x +
+          <input class="matrix-cell" id="e12" value="1" type="number" style="width:50px">y =
+          <input class="matrix-cell" id="e13" value="5" type="number" style="width:50px">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="matrix-cell" id="e21" value="1" type="number" style="width:50px">x +
+          <input class="matrix-cell" id="e22" value="3" type="number" style="width:50px">y =
+          <input class="matrix-cell" id="e23" value="10" type="number" style="width:50px">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="solveLinear()">Çöz (Cramer)</button>
+      <div class="matrix-result" id="linear-result" style="margin-top:1rem">—</div>
+    </div>
+
+    <div class="tool-card">
+      <h3>📐 Vektör İşlemleri (2B)</h3>
+      <div class="two-col">
+        <div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">Vektör u</div>
+          <div style="display:flex;gap:8px;margin-bottom:1rem">
+            <div><div style="font-size:11px;color:var(--text-muted)">ux</div><input type="number" id="vux" value="3" style="width:70px" oninput="calcVector()"></div>
+            <div><div style="font-size:11px;color:var(--text-muted)">uy</div><input type="number" id="vuy" value="4" style="width:70px" oninput="calcVector()"></div>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">Vektör v</div>
+          <div style="display:flex;gap:8px">
+            <div><div style="font-size:11px;color:var(--text-muted)">vx</div><input type="number" id="vvx" value="1" style="width:70px" oninput="calcVector()"></div>
+            <div><div style="font-size:11px;color:var(--text-muted)">vy</div><input type="number" id="vvy" value="2" style="width:70px" oninput="calcVector()"></div>
+          </div>
+        </div>
+        <div id="vec-results" style="font-size:14px;line-height:2">—</div>
+      </div>
+      <canvas id="vecCanvas" height="220" style="margin-top:1rem"></canvas>
+    </div>
+  </div>
+  <footer><strong>MathLab</strong> — Lineer Cebir Modülü</footer>
+</div>
+
+<!-- ═══════════ DİZİLER ═══════════ -->
+<div id="page-dizi" class="page">
+  <div class="tool-page">
+    <div class="tool-header">
+      <div class="tag-row"><span class="tag bg-amber c-amber">Dizi & Seri</span></div>
+      <h1>Sayı Dizileri & Seriler</h1>
+      <p>Aritmetik, geometrik, Fibonacci ve özel diziler</p>
+    </div>
+
+    <div class="tool-card">
+      <h3>➕ Aritmetik Dizi</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">İlk terim (a₁)</span>
+        <input type="number" id="ar-a1" value="2" style="width:70px" oninput="calcArithmetic()">
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Ortak fark (d)</span>
+        <input type="number" id="ar-d" value="3" style="width:70px" oninput="calcArithmetic()">
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Terim sayısı</span>
+        <input type="range" id="ar-n" min="3" max="20" value="8" oninput="calcArithmetic()">
+        <span class="ctrl-val" id="ar-n-v">8</span>
+      </div>
+      <div class="seq-output" id="ar-seq"></div>
+      <div class="info-grid" style="margin-top:1rem" id="ar-info">
+        <div class="info-tile"><div class="num" id="ar-nth">—</div><div class="lbl">n. terim</div></div>
+        <div class="info-tile"><div class="num" id="ar-sum">—</div><div class="lbl">Kısmi toplam Sₙ</div></div>
+      </div>
+      <div style="background:var(--amber-50);border-radius:8px;padding:1rem;margin-top:1rem;font-family:'DM Mono',monospace;font-size:14px;color:var(--amber-600)">
+        aₙ = a₁ + (n−1)d &nbsp;|&nbsp; Sₙ = n/2 · (a₁ + aₙ)
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>✖️ Geometrik Dizi</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">İlk terim (a₁)</span>
+        <input type="number" id="geo-a1" value="1" style="width:70px" oninput="calcGeo()">
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Ortak oran (r)</span>
+        <input type="number" id="geo-r" value="2" step="0.5" style="width:70px" oninput="calcGeo()">
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Terim sayısı</span>
+        <input type="range" id="geo-n" min="3" max="12" value="7" oninput="calcGeo()">
+        <span class="ctrl-val" id="geo-n-v">7</span>
+      </div>
+      <div class="seq-output" id="geo-seq"></div>
+      <div class="info-grid" style="margin-top:1rem">
+        <div class="info-tile"><div class="num" id="geo-nth">—</div><div class="lbl">n. terim</div></div>
+        <div class="info-tile"><div class="num" id="geo-sum">—</div><div class="lbl">Kısmi toplam Sₙ</div></div>
+      </div>
+      <div style="background:var(--purple-50);border-radius:8px;padding:1rem;margin-top:1rem;font-family:'DM Mono',monospace;font-size:14px;color:var(--purple-600)">
+        aₙ = a₁ · rⁿ⁻¹ &nbsp;|&nbsp; Sₙ = a₁·(rⁿ−1)/(r−1)
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>🌀 Fibonacci & Özel Diziler</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Dizi türü</span>
+        <select id="special-type" onchange="calcSpecial()" style="width:200px">
+          <option value="fib">Fibonacci</option>
+          <option value="sq">Tam kareler</option>
+          <option value="tri">Üçgen sayılar</option>
+          <option value="prime">Asal sayılar</option>
+          <option value="fac">Faktöriyeller</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Terim sayısı</span>
+        <input type="range" id="sp-n" min="5" max="15" value="10" oninput="calcSpecial()">
+        <span class="ctrl-val" id="sp-n-v">10</span>
+      </div>
+      <div class="seq-output" id="sp-seq"></div>
+      <div style="background:var(--teal-50);border-radius:8px;padding:0.75rem 1rem;margin-top:1rem;font-size:13px;color:var(--teal-600)" id="sp-desc"></div>
+    </div>
+  </div>
+  <footer><strong>MathLab</strong> — Diziler & Seriler Modülü</footer>
+</div>
+
+<!-- ═══════════ FORMÜLLER ═══════════ -->
+<div id="page-formuller" class="page">
+  <div class="tool-page">
+    <div class="tool-header">
+      <div class="tag-row"><span class="tag bg-coral c-coral">Kütüphane</span></div>
+      <h1>Formül Kütüphanesi</h1>
+      <p>Temel matematik formülleri hızlı referans rehberi</p>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:2rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="filterFormulas('all')">Tümü</button>
+      <button class="btn btn-ghost" onclick="filterFormulas('analiz')">Analiz</button>
+      <button class="btn btn-ghost" onclick="filterFormulas('istatistik')">İstatistik</button>
+      <button class="btn btn-ghost" onclick="filterFormulas('cebir')">Cebir</button>
+      <button class="btn btn-ghost" onclick="filterFormulas('dizi')">Dizi</button>
+      <button class="btn btn-ghost" onclick="filterFormulas('trigonometri')">Trigonometri</button>
+    </div>
+
+    <div class="formula-lib" id="formula-lib"></div>
+  </div>
+  <footer><strong>MathLab</strong> — Formül Kütüphanesi</footer>
+</div>
+
+<!-- ═══════════ HAKKINDA ═══════════ -->
+<div id="page-hakkinda" class="page">
+  <div class="about-hero">
+    <div style="font-size:48px;margin-bottom:1rem">π</div>
+    <h1>MathLab Hakkında</h1>
+    <p>Bilgisayar Programcılığı Bölümü Araştırma Yöntemleri Teknikleri dersi kapsamında geliştirilen interaktif matematik eğitim platformu.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Proje Amacı</div>
+      <h2>Neden MathLab?</h2>
+      <p>Soyut matematiksel kavramları görselleştirerek öğrenmeyi kolaylaştırmak</p>
+    </div>
+    <ul class="feature-list">
+      <li><span>📈</span><div><strong>İnteraktif Görselleştirme:</strong> Kaydırıcılarla parametreleri değiştir, grafiklerin anlık değişimini izle.</div></li>
+      <li><span>🧮</span><div><strong>Canlı Hesaplama:</strong> Formülleri otomatik hesapla, adım adım çözüm sürecini takip et.</div></li>
+      <li><span>📚</span><div><strong>Formül Kütüphanesi:</strong> 80'den fazla temel formüle kategorilere ayrılmış hızlı erişim.</div></li>
+      <li><span>🎓</span><div><strong>Eğitim Odaklı:</strong> Bilgisayar programcılığı öğrencileri için özelleştirilmiş içerik.</div></li>
+      <li><span>⚡</span><div><strong>Hızlı & Hafif:</strong> Sadece HTML, CSS ve Vanilla JS. Framework yok, yükleme yok.</div></li>
+      <li><span>🌐</span><div><strong>Erişilebilir:</strong> İnternet bağlantısı olmadan da çalışır, kurulum gerektirmez.</div></li>
+    </ul>
+
+    <div class="section-header" style="margin-top:3rem">
+      <div class="section-tag">Teknoloji</div>
+      <h2>Kullanılan Teknolojiler</h2>
+    </div>
+    <div class="topic-grid">
+      <div class="topic-card">
+        <div class="tc-icon bg-coral" style="font-size:20px">🌐</div>
+        <h3>HTML5</h3>
+        <p>Semantik yapı, Canvas API ile grafikler ve form elemanları.</p>
+      </div>
+      <div class="topic-card">
+        <div class="tc-icon bg-blue" style="font-size:20px">🎨</div>
+        <h3>CSS3</h3>
+        <p>Flexbox, Grid, CSS değişkenleri, animasyonlar ve responsive tasarım.</p>
+      </div>
+      <div class="topic-card">
+        <div class="tc-icon bg-amber" style="font-size:20px">⚙️</div>
+        <h3>Vanilla JS</h3>
+        <p>Saf JavaScript ile DOM manipülasyonu ve matematiksel hesaplamalar.</p>
+      </div>
+      <div class="topic-card">
+        <div class="tc-icon bg-teal" style="font-size:20px">📐</div>
+        <h3>Canvas API</h3>
+        <p>2D grafik çizimi, fonksiyon eğrileri ve istatistik görselleştirme.</p>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:3rem">
+      <div class="section-tag">Kapsam</div>
+      <h2>Modüller & İçerik</h2>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <thead><tr style="background:var(--gray-50)">
+          <th style="padding:12px 16px;text-align:left;font-weight:500;border-bottom:1px solid var(--border)">Modül</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:500;border-bottom:1px solid var(--border)">İçerik</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:500;border-bottom:1px solid var(--border)">Araç Sayısı</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:12px 16px">Türev & İntegral</td><td style="padding:12px 16px;color:var(--text-muted)">Grafik çizici, türev kuralları, integral hesaplayıcı</td><td style="padding:12px 16px"><span class="tag bg-blue c-blue">3 araç</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:12px 16px">İstatistik & Olasılık</td><td style="padding:12px 16px;color:var(--text-muted)">Betimsel istatistik, kombinasyon, normal dağılım</td><td style="padding:12px 16px"><span class="tag bg-teal c-teal">3 araç</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:12px 16px">Lineer Cebir</td><td style="padding:12px 16px;color:var(--text-muted)">Matris işlemleri, denklem çözücü, vektörler</td><td style="padding:12px 16px"><span class="tag bg-purple c-purple">3 araç</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:12px 16px">Diziler & Seriler</td><td style="padding:12px 16px;color:var(--text-muted)">Aritmetik, geometrik, Fibonacci, özel diziler</td><td style="padding:12px 16px"><span class="tag bg-amber c-amber">3 araç</span></td></tr>
+          <tr><td style="padding:12px 16px">Formül Kütüphanesi</td><td style="padding:12px 16px;color:var(--text-muted)">80+ formül, 5 kategori</td><td style="padding:12px 16px"><span class="tag bg-coral c-coral">Referans</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <footer><strong>MathLab</strong> — Araştırma Yöntemleri Teknikleri Dersi · 2025</footer>
+</div>
+
+<script>
+// ── PAGE NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'turev') { setTimeout(drawTurev, 50); }
+  if (id === 'istatistik') { setTimeout(() => { calcStats(); calcProb(); drawNormal(); initDiceBars(); }, 50); }
+  if (id === 'lineer') { setTimeout(() => { calcMatrix(); calcVector(); }, 50); }
+  if (id === 'dizi') { setTimeout(() => { calcArithmetic(); calcGeo(); calcSpecial(); }, 50); }
+  if (id === 'formuller') { setTimeout(renderFormulas, 50); }
+}
+
+// ── CANVAS HELPER ──
+function getCtx(id) {
+  const c = document.getElementById(id);
+  if (!c) return null;
+  c.width = c.offsetWidth || 600;
+  return { canvas: c, ctx: c.getContext('2d'), w: c.width, h: c.height };
+}
+function drawAxes(ctx, w, h, xMin, xMax, yMin, yMax) {
+  const cx = ctx, ox = w * (-xMin) / (xMax - xMin), oy = h * yMax / (yMax - yMin);
+  cx.strokeStyle = '#D3D1C7'; cx.lineWidth = 0.5;
+  for (let x = Math.ceil(xMin); x <= xMax; x++) {
+    const px = w * (x - xMin) / (xMax - xMin);
+    cx.beginPath(); cx.moveTo(px, 0); cx.lineTo(px, h); cx.stroke();
+  }
+  cx.strokeStyle = '#888780'; cx.lineWidth = 1.5;
+  cx.beginPath(); cx.moveTo(0, oy); cx.lineTo(w, oy); cx.stroke();
+  cx.beginPath(); cx.moveTo(ox, 0); cx.lineTo(ox, h); cx.stroke();
+}
+
+// ── HERO CANVAS ──
+function drawHeroCanvas() {
+  const el = document.getElementById('heroCanvas');
+  if (!el) return;
+  el.width = el.offsetWidth || 300;
+  const ctx = el.getContext('2d'), w = el.width, h = el.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#85B7EB'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let px = 0; px < w; px++) {
+    const x = (px / w) * 6 - 3;
+    const y = x * x;
+    const py = h - (y / 9) * (h - 20) - 10;
+    px === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#EF9F27'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  for (let px = 0; px < w; px++) {
+    const x = (px / w) * 6 - 3;
+    const py = h - (2 * x / 9) * (h - 20) - h / 2;
+    px === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+}
+
+// ── TÜREV ──
+function drawTurev() {
+  const a = parseFloat(document.getElementById('ta').value);
+  const b = parseFloat(document.getElementById('tb').value);
+  const c = parseFloat(document.getElementById('tc').value);
+  document.getElementById('ta-v').textContent = a;
+  document.getElementById('tb-v').textContent = b;
+  document.getElementById('tc-v').textContent = c;
+  const bStr = b >= 0 ? '+ ' + b : '− ' + Math.abs(b);
+  const cStr = c >= 0 ? '+ ' + c : '− ' + Math.abs(c);
+  const aStr = a === 1 ? '' : (a === -1 ? '−' : a);
+  document.getElementById('turev-formula').innerHTML =
+    `f(x) = <b>${aStr}x²</b> ${bStr}x ${cStr} &nbsp;|&nbsp; f′(x) = ${2*a}x ${b >= 0 ? '+' : ''} ${b}`;
+  const vx = -b / (2 * a || 0.001);
+  const vy = a * vx * vx + b * vx + c;
+  const disc = b * b - 4 * a * c;
+  document.getElementById('vertex-x').textContent = vx.toFixed(2);
+  document.getElementById('vertex-y').textContent = vy.toFixed(2);
+  document.getElementById('disc').textContent = disc.toFixed(2);
+  document.getElementById('root-count').textContent = disc > 0 ? '2' : disc === 0 ? '1' : '0';
+
+  const d = getCtx('turevCanvas');
+  if (!d) return;
+  const { ctx, w, h } = d;
+  ctx.clearRect(0, 0, w, h);
+  const xMin = -8, xMax = 8, yMin = -15, yMax = 25;
+  drawAxes(ctx, w, h, xMin, xMax, yMin, yMax);
+  function toScreen(x, y) {
+    return { x: w * (x - xMin) / (xMax - xMin), y: h * (yMax - y) / (yMax - yMin) };
+  }
+  ctx.strokeStyle = '#185FA5'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let px = 0; px <= w; px++) {
+    const x = xMin + (xMax - xMin) * px / w;
+    const y = a * x * x + b * x + c;
+    const s = toScreen(x, y);
+    px === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#EF9F27'; ctx.lineWidth = 1.8; ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  for (let px = 0; px <= w; px++) {
+    const x = xMin + (xMax - xMin) * px / w;
+    const y = 2 * a * x + b;
+    const s = toScreen(x, y);
+    px === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  // Vertex dot
+  const vs = toScreen(vx, vy);
+  ctx.fillStyle = '#D85A30'; ctx.beginPath(); ctx.arc(vs.x, vs.y, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#185FA5'; ctx.font = '12px DM Mono';
+  ctx.fillText('f(x)', 6, 20); ctx.fillStyle = '#EF9F27'; ctx.fillText("f'(x)", 6, 38);
+}
+
+function calcIntegral() {
+  const a = parseFloat(document.getElementById('int-a').value) || 1;
+  const n = parseFloat(document.getElementById('int-n').value) || 2;
+  const from = parseFloat(document.getElementById('int-from').value) || 0;
+  const to = parseFloat(document.getElementById('int-to').value) || 3;
+  const res = a * (Math.pow(to, n + 1) - Math.pow(from, n + 1)) / (n + 1);
+  document.getElementById('int-result').textContent = res.toFixed(4);
+  document.getElementById('int-formula').innerHTML =
+    `∫<sub>${from}</sub><sup>${to}</sup> ${a === 1 ? '' : a}x<sup>${n}</sup> dx = [${a === 1 ? '' : a}x<sup>${n+1}</sup>/${n+1}]<sub>${from}</sub><sup>${to}</sup>`;
+  document.getElementById('int-steps').innerHTML =
+    `= ${a}·(${to}^${n+1} − ${from}^${n+1}) / ${n+1} = <b>${res.toFixed(4)}</b>`;
+}
+
+// ── İSTATİSTİK ──
+function parseNums(id) {
+  return document.getElementById(id).value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+}
+function calcStats() {
+  const nums = parseNums('stat-input');
+  if (!nums.length) return;
+  const n = nums.length;
+  const mean = nums.reduce((a, b) => a + b) / n;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const median = n % 2 ? sorted[Math.floor(n / 2)] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const variance = nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
+  const std = Math.sqrt(variance);
+  const freq = {}; nums.forEach(x => freq[x] = (freq[x] || 0) + 1);
+  const maxFreq = Math.max(...Object.values(freq));
+  const mode = Object.keys(freq).filter(k => freq[k] === maxFreq).join(', ');
+  document.getElementById('s-mean').textContent = mean.toFixed(2);
+  document.getElementById('s-median').textContent = median.toFixed(2);
+  document.getElementById('s-mode').textContent = mode;
+  document.getElementById('s-std').textContent = std.toFixed(2);
+  document.getElementById('s-var').textContent = variance.toFixed(2);
+  document.getElementById('s-range').textContent = (sorted[n-1] - sorted[0]).toFixed(2);
+  document.getElementById('s-min').textContent = sorted[0];
+  document.getElementById('s-max').textContent = sorted[n-1];
+  drawStatChart(nums, mean);
+}
+function randomStats() {
+  const arr = Array.from({ length: 10 }, () => Math.round(Math.random() * 50 + 10));
+  document.getElementById('stat-input').value = arr.join(', ');
+  calcStats();
+}
+function drawStatChart(nums, mean) {
+  const d = getCtx('statCanvas');
+  if (!d) return;
+  const { ctx, w, h } = d;
+  ctx.clearRect(0, 0, w, h);
+  const pad = 30, bw = Math.min(40, (w - pad * 2) / nums.length - 4);
+  const max = Math.max(...nums);
+  ctx.fillStyle = '#B5D4F4';
+  nums.forEach((v, i) => {
+    const bh = (v / max) * (h - pad * 2);
+    const x = pad + i * ((w - pad * 2) / nums.length) + 2;
+    const y = h - pad - bh;
+    ctx.fillRect(x, y, bw, bh);
+  });
+  const my = h - pad - (mean / max) * (h - pad * 2);
+  ctx.strokeStyle = '#D85A30'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(pad, my); ctx.lineTo(w - pad, my); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle = '#D85A30'; ctx.font = '12px DM Mono';
+  ctx.fillText('x̄ = ' + mean.toFixed(1), w - pad - 60, my - 6);
+}
+
+function calcProb() {
+  const n = parseInt(document.getElementById('prob-n').value) || 10;
+  const r = parseInt(document.getElementById('prob-r').value) || 3;
+  const comb = factorial(n) / (factorial(r) * factorial(n - r));
+  const perm = factorial(n) / factorial(n - r);
+  document.getElementById('comb-val').textContent = comb > 1e12 ? comb.toExponential(2) : Math.round(comb);
+  document.getElementById('perm-val').textContent = perm > 1e12 ? perm.toExponential(2) : Math.round(perm);
+}
+function factorial(n) { if (n <= 1) return 1; let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+
+function initDiceBars() {
+  const el = document.getElementById('dice-bars');
+  el.innerHTML = [1,2,3,4,5,6].map(i => `
+    <div class="prob-bar-wrap">
+      <div class="prob-label"><span>Yüz ${i}</span><span id="dc-${i}">16.7%</span></div>
+      <div class="prob-bar"><div class="prob-fill" id="df-${i}" style="width:16.7%;background:var(--blue-400)"></div></div>
+    </div>`).join('');
+}
+function rollDice() {
+  const counts = {1:0,2:0,3:0,4:0,5:0,6:0};
+  for (let i = 0; i < 100; i++) counts[Math.ceil(Math.random()*6)]++;
+  [1,2,3,4,5,6].forEach(i => {
+    const pct = counts[i];
+    document.getElementById('dc-'+i).textContent = pct + '%';
+    document.getElementById('df-'+i).style.width = pct + '%';
+  });
+  document.getElementById('dice-result').textContent = '100 atış tamamlandı';
+}
+
+function drawNormal() {
+  const mu = parseFloat(document.getElementById('nd-mu').value);
+  const sigma = parseFloat(document.getElementById('nd-sigma').value);
+  document.getElementById('nd-mu-v').textContent = mu;
+  document.getElementById('nd-sigma-v').textContent = sigma;
+  const d = getCtx('normalCanvas');
+  if (!d) return;
+  const { ctx, w, h } = d;
+  ctx.clearRect(0, 0, w, h);
+  const xMin = -8, xMax = 8;
+  drawAxes(ctx, w, h, xMin, xMax, 0, 0.9);
+  function normal(x) { return (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*Math.pow((x-mu)/sigma,2)); }
+  ctx.strokeStyle = '#185FA5'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let px = 0; px < w; px++) {
+    const x = xMin + (xMax - xMin) * px / w;
+    const y = normal(x);
+    const sy = h - (y / 0.9) * (h - 30) - 10;
+    px === 0 ? ctx.moveTo(px, sy) : ctx.lineTo(px, sy);
+  }
+  ctx.stroke();
+  // Fill under curve
+  ctx.fillStyle = 'rgba(55,138,221,0.12)';
+  ctx.beginPath();
+  const oy = h - 10;
+  ctx.moveTo(0, oy);
+  for (let px = 0; px < w; px++) {
+    const x = xMin + (xMax - xMin) * px / w;
+    const y = normal(x);
+    ctx.lineTo(px, h - (y / 0.9) * (h - 30) - 10);
+  }
+  ctx.lineTo(w, oy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#185FA5'; ctx.font = '12px DM Mono';
+  ctx.fillText(`μ=${mu}, σ=${sigma}`, 8, 20);
+}
+
+// ── LİNEER CEBİR ──
+function getA() {
+  return [[parseFloat(document.getElementById('a11').value)||0, parseFloat(document.getElementById('a12').value)||0],
+          [parseFloat(document.getElementById('a21').value)||0, parseFloat(document.getElementById('a22').value)||0]];
+}
+function getB() {
+  return [[parseFloat(document.getElementById('b11').value)||0, parseFloat(document.getElementById('b12').value)||0],
+          [parseFloat(document.getElementById('b21').value)||0, parseFloat(document.getElementById('b22').value)||0]];
+}
+function det2(m) { return m[0][0]*m[1][1] - m[0][1]*m[1][0]; }
+function formatMat(m) {
+  return `⎡ ${m[0][0]}  ${m[0][1]} ⎤\n⎣ ${m[1][0]}  ${m[1][1]} ⎦`;
+}
+function calcMatrix() {
+  const A = getA(), B = getB(), op = document.getElementById('mat-op').value;
+  let res = '';
+  if (op === 'add') {
+    const R = [[A[0][0]+B[0][0], A[0][1]+B[0][1]], [A[1][0]+B[1][0], A[1][1]+B[1][1]]];
+    res = 'A + B =\n' + formatMat(R);
+  } else if (op === 'sub') {
+    const R = [[A[0][0]-B[0][0], A[0][1]-B[0][1]], [A[1][0]-B[1][0], A[1][1]-B[1][1]]];
+    res = 'A − B =\n' + formatMat(R);
+  } else if (op === 'mul') {
+    const R = [[A[0][0]*B[0][0]+A[0][1]*B[1][0], A[0][0]*B[0][1]+A[0][1]*B[1][1]],
+               [A[1][0]*B[0][0]+A[1][1]*B[1][0], A[1][0]*B[0][1]+A[1][1]*B[1][1]]];
+    res = 'A × B =\n' + formatMat(R);
+  } else if (op === 'deta') {
+    res = 'det(A) = ' + det2(A).toFixed(4);
+  } else if (op === 'detb') {
+    res = 'det(B) = ' + det2(B).toFixed(4);
+  } else if (op === 'inva') {
+    const d = det2(A);
+    if (Math.abs(d) < 1e-10) { res = 'A tekil matris, tersi yok (det = 0)'; }
+    else {
+      const R = [[A[1][1]/d, -A[0][1]/d], [-A[1][0]/d, A[0][0]/d]];
+      const fmt = m => m.toFixed(3);
+      res = `A⁻¹ =\n⎡ ${fmt(R[0][0])}  ${fmt(R[0][1])} ⎤\n⎣ ${fmt(R[1][0])}  ${fmt(R[1][1])} ⎦`;
+    }
+  } else if (op === 'tra') {
+    const R = [[A[0][0], A[1][0]], [A[0][1], A[1][1]]];
+    res = 'Aᵀ =\n' + formatMat(R);
+  }
+  document.getElementById('mat-result').textContent = res;
+}
+
+function solveLinear() {
+  const a = parseFloat(document.getElementById('e11').value), b = parseFloat(document.getElementById('e12').value), c = parseFloat(document.getElementById('e13').value);
+  const d = parseFloat(document.getElementById('e21').value), e = parseFloat(document.getElementById('e22').value), f = parseFloat(document.getElementById('e23').value);
+  const D = a*e - b*d, Dx = c*e - b*f, Dy = a*f - c*d;
+  let res;
+  if (Math.abs(D) < 1e-10) res = 'Cramer uygulanamaz: det = 0. Sistem bağımlı veya tutarsız.';
+  else res = `D = ${D.toFixed(2)}\nDx = ${Dx.toFixed(2)},  Dy = ${Dy.toFixed(2)}\n\n→ x = ${(Dx/D).toFixed(4)}\n→ y = ${(Dy/D).toFixed(4)}`;
+  document.getElementById('linear-result').textContent = res;
+}
+
+function calcVector() {
+  const ux = parseFloat(document.getElementById('vux').value)||0, uy = parseFloat(document.getElementById('vuy').value)||0;
+  const vx = parseFloat(document.getElementById('vvx').value)||0, vy = parseFloat(document.getElementById('vvy').value)||0;
+  const dot = ux*vx + uy*vy;
+  const magU = Math.sqrt(ux*ux + uy*uy), magV = Math.sqrt(vx*vx + vy*vy);
+  const angle = magU && magV ? Math.acos(Math.min(1, dot/(magU*magV))) * 180 / Math.PI : 0;
+  const sum = `(${ux+vx}, ${uy+vy})`;
+  document.getElementById('vec-results').innerHTML = `
+    <div><b>|u|</b> = ${magU.toFixed(3)}</div>
+    <div><b>|v|</b> = ${magV.toFixed(3)}</div>
+    <div><b>u·v</b> = ${dot.toFixed(3)}</div>
+    <div><b>Açı</b> = ${angle.toFixed(1)}°</div>
+    <div><b>u+v</b> = ${sum}</div>`;
+  drawVectors(ux, uy, vx, vy);
+}
+function drawVectors(ux, uy, vx, vy) {
+  const d = getCtx('vecCanvas');
+  if (!d) return;
+  const { ctx, w, h } = d;
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2, scale = 20;
+  ctx.strokeStyle = '#D3D1C7'; ctx.lineWidth = 0.5;
+  for (let i = -10; i <= 10; i++) {
+    ctx.beginPath(); ctx.moveTo(cx + i*scale, 0); ctx.lineTo(cx + i*scale, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, cy + i*scale); ctx.lineTo(w, cy + i*scale); ctx.stroke();
+  }
+  ctx.strokeStyle = '#888780'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+  function arrow(tx, ty, color, label) {
+    const ex = cx + tx * scale, ey = cy - ty * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+    const angle = Math.atan2(ey - cy, ex - cx);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 10*Math.cos(angle-0.4), ey - 10*Math.sin(angle-0.4));
+    ctx.lineTo(ex - 10*Math.cos(angle+0.4), ey - 10*Math.sin(angle+0.4));
+    ctx.closePath(); ctx.fill();
+    ctx.font = 'bold 13px DM Mono';
+    ctx.fillText(label, ex + 6, ey - 6);
+  }
+  arrow(ux, uy, '#185FA5', 'u');
+  arrow(vx, vy, '#D85A30', 'v');
+  arrow(ux+vx, uy+vy, '#1D9E75', 'u+v');
+}
+
+// ── DİZİLER ──
+function calcArithmetic() {
+  const a1 = parseFloat(document.getElementById('ar-a1').value)||1;
+  const d = parseFloat(document.getElementById('ar-d').value)||1;
+  const n = parseInt(document.getElementById('ar-n').value)||8;
+  document.getElementById('ar-n-v').textContent = n;
+  const terms = Array.from({length:n}, (_,i) => a1 + i*d);
+  document.getElementById('ar-seq').innerHTML = terms.map(t => `<span class="seq-badge">${t}</span>`).join('');
+  const an = terms[n-1], sn = n*(a1+an)/2;
+  document.getElementById('ar-nth').textContent = an;
+  document.getElementById('ar-sum').textContent = sn;
+}
+function calcGeo() {
+  const a1 = parseFloat(document.getElementById('geo-a1').value)||1;
+  const r = parseFloat(document.getElementById('geo-r').value)||2;
+  const n = parseInt(document.getElementById('geo-n').value)||7;
+  document.getElementById('geo-n-v').textContent = n;
+  const terms = Array.from({length:n}, (_,i) => +(a1 * Math.pow(r,i)).toFixed(4));
+  document.getElementById('geo-seq').innerHTML = terms.map(t => `<span class="seq-badge" style="background:var(--amber-50);color:var(--amber-600);border-color:var(--amber-400)">${t}</span>`).join('');
+  const an = terms[n-1];
+  const sn = Math.abs(r-1) < 1e-9 ? a1*n : a1*(Math.pow(r,n)-1)/(r-1);
+  document.getElementById('geo-nth').textContent = an;
+  document.getElementById('geo-sum').textContent = sn.toFixed(4);
+}
+function calcSpecial() {
+  const type = document.getElementById('special-type').value;
+  const n = parseInt(document.getElementById('sp-n').value)||10;
+  document.getElementById('sp-n-v').textContent = n;
+  let terms = [], desc = '';
+  if (type === 'fib') {
+    terms = [1,1]; for(let i=2;i<n;i++) terms.push(terms[i-1]+terms[i-2]);
+    desc = 'Her terim, önceki iki terimin toplamıdır: Fₙ = Fₙ₋₁ + Fₙ₋₂';
+  } else if (type === 'sq') {
+    terms = Array.from({length:n}, (_,i) => (i+1)*(i+1));
+    desc = 'Tam kare sayılar: aₙ = n²';
+  } else if (type === 'tri') {
+    terms = Array.from({length:n}, (_,i) => (i+1)*(i+2)/2);
+    desc = 'Üçgen sayılar: Tₙ = n(n+1)/2';
+  } else if (type === 'prime') {
+    const primes = [];
+    for (let num = 2; primes.length < n; num++) {
+      if ([...Array(num-2)].map((_,i)=>i+2).every(d=>num%d!==0)) primes.push(num);
+    }
+    terms = primes;
+    desc = 'Asal sayılar: yalnızca 1 ve kendisiyle tam bölünen sayılar';
+  } else if (type === 'fac') {
+    terms = []; let f=1;
+    for(let i=1;i<=n;i++){ f*=i; terms.push(f); }
+    desc = 'Faktöriyeller: n! = 1 × 2 × … × n';
+  }
+  document.getElementById('sp-seq').innerHTML = terms.map(t => `<span class="seq-badge" style="background:var(--coral-50);color:var(--coral-600);border-color:var(--coral-400)">${t}</span>`).join('');
+  document.getElementById('sp-desc').textContent = desc;
+}
+
+// ── FORMÜLLER ──
+const FORMULAS = [
+  { cat:'analiz', name:'Türevin Tanımı', expr:"f'(x) = lim(h→0) [f(x+h)−f(x)]/h", desc:'Türevin limit tanımı' },
+  { cat:'analiz', name:'Kuvvet Kuralı', expr:"(xⁿ)' = n·xⁿ⁻¹", desc:'Polinom türevi' },
+  { cat:'analiz', name:'Çarpım Kuralı', expr:"(uv)' = u'v + uv'", desc:'İki fonksiyonun çarpımının türevi' },
+  { cat:'analiz', name:'Bölüm Kuralı', expr:"(u/v)' = (u'v − uv')/v²", desc:'Bölümün türevi' },
+  { cat:'analiz', name:'Zincir Kuralı', expr:"(f∘g)' = f'(g(x))·g'(x)", desc:'Bileşke fonksiyonun türevi' },
+  { cat:'analiz', name:'sin Türevi', expr:"(sin x)' = cos x", desc:'' },
+  { cat:'analiz', name:'cos Türevi', expr:"(cos x)' = −sin x", desc:'' },
+  { cat:'analiz', name:'eˣ Türevi', expr:"(eˣ)' = eˣ", desc:'Üstel fonksiyon kendi türevi' },
+  { cat:'analiz', name:'ln x Türevi', expr:"(ln x)' = 1/x", desc:'x > 0 için' },
+  { cat:'analiz', name:'Belirli İntegral', expr:"∫ₐᵇ f(x)dx = F(b) − F(a)", desc:'Temel Calculus Teoremi' },
+  { cat:'analiz', name:'Güç İntegrali', expr:"∫ xⁿ dx = xⁿ⁺¹/(n+1) + C", desc:'n ≠ −1 için' },
+  { cat:'istatistik', name:'Aritmetik Ortalama', expr:"x̄ = (Σxᵢ) / n", desc:'n verinin ortalaması' },
+  { cat:'istatistik', name:'Medyan', expr:"Sıralı dizinin orta değeri", desc:'Merkezi konum ölçüsü' },
+  { cat:'istatistik', name:'Varyans', expr:"σ² = Σ(xᵢ − x̄)² / n", desc:'Yayılım ölçüsü' },
+  { cat:'istatistik', name:'Standart Sapma', expr:"σ = √[Σ(xᵢ − x̄)²/n]", desc:'Varyansın karekökü' },
+  { cat:'istatistik', name:'Normal Dağılım', expr:"f(x) = (1/σ√2π)·e^[−(x−μ)²/2σ²]", desc:'Gauss dağılımı' },
+  { cat:'istatistik', name:'Kombinasyon', expr:"C(n,r) = n! / [r!(n−r)!]", desc:'Sırasız seçim sayısı' },
+  { cat:'istatistik', name:'Permütasyon', expr:"P(n,r) = n! / (n−r)!", desc:'Sıralı seçim sayısı' },
+  { cat:'istatistik', name:'Koşullu Olasılık', expr:"P(A|B) = P(A∩B) / P(B)", desc:'B verildiğinde A olasılığı' },
+  { cat:'cebir', name:'2×2 Determinant', expr:"det(A) = ad − bc", desc:'A = [[a,b],[c,d]]' },
+  { cat:'cebir', name:'2×2 Ters Matris', expr:"A⁻¹ = (1/det) · [[d,−b],[−c,a]]", desc:'det ≠ 0 şartıyla' },
+  { cat:'cebir', name:'Cramer Kuralı', expr:"x = Dₓ/D, y = Dᵧ/D", desc:'2×2 lineer sistem çözümü' },
+  { cat:'cebir', name:'Dot (İç) Çarpım', expr:"u·v = uxvx + uyvy", desc:'İki vektörün iç çarpımı' },
+  { cat:'cebir', name:'Vektör Büyüklüğü', expr:"|u| = √(ux² + uy²)", desc:'Öklid normu' },
+  { cat:'cebir', name:'Vektörler Arası Açı', expr:"cos θ = (u·v) / (|u||v|)", desc:'İki vektör arasındaki açı' },
+  { cat:'dizi', name:'Aritmetik n. Terim', expr:"aₙ = a₁ + (n−1)d", desc:'d: ortak fark' },
+  { cat:'dizi', name:'Aritmetik Toplam', expr:"Sₙ = n/2 · (a₁ + aₙ)", desc:'n terimin toplamı' },
+  { cat:'dizi', name:'Geometrik n. Terim', expr:"aₙ = a₁ · rⁿ⁻¹", desc:'r: ortak oran' },
+  { cat:'dizi', name:'Geometrik Toplam', expr:"Sₙ = a₁(rⁿ−1)/(r−1)", desc:'r ≠ 1 için' },
+  { cat:'dizi', name:'Sonsuz Geometrik', expr:"S∞ = a₁/(1−r)", desc:'|r| < 1 için' },
+  { cat:'dizi', name:'Fibonacci', expr:"Fₙ = Fₙ₋₁ + Fₙ₋₂", desc:'F₁ = F₂ = 1' },
+  { cat:'trigonometri', name:'sin² + cos²', expr:"sin²x + cos²x = 1", desc:'Pisagor özdeşliği' },
+  { cat:'trigonometri', name:'tan tanımı', expr:"tan x = sin x / cos x", desc:'' },
+  { cat:'trigonometri', name:'Toplam Formülü (sin)', expr:"sin(a+b) = sin a·cos b + cos a·sin b", desc:'' },
+  { cat:'trigonometri', name:'Toplam Formülü (cos)', expr:"cos(a+b) = cos a·cos b − sin a·sin b", desc:'' },
+  { cat:'trigonometri', name:'Çift Açı (sin)', expr:"sin 2x = 2 sin x cos x", desc:'' },
+  { cat:'trigonometri', name:'Çift Açı (cos)', expr:"cos 2x = cos²x − sin²x", desc:'' },
+  { cat:'trigonometri', name:'Sinüs Teoremi', expr:"a/sin A = b/sin B = c/sin C", desc:'Üçgen kenar-açı ilişkisi' },
+  { cat:'trigonometri', name:'Kosinüs Teoremi', expr:"c² = a² + b² − 2ab·cos C", desc:'Genelleştirilmiş Pisagor' },
+];
+const catColors = { analiz:'blue', istatistik:'teal', cebir:'purple', dizi:'amber', trigonometri:'coral' };
+const catLabels = { analiz:'Analiz', istatistik:'İstatistik', cebir:'Cebir', dizi:'Dizi', trigonometri:'Trigonometri' };
+let currentFilter = 'all';
+function filterFormulas(cat) { currentFilter = cat; renderFormulas(); }
+function renderFormulas() {
+  const list = currentFilter === 'all' ? FORMULAS : FORMULAS.filter(f => f.cat === currentFilter);
+  document.getElementById('formula-lib').innerHTML = list.map(f => `
+    <div class="formula-item">
+      <div class="fi-tag c-${catColors[f.cat]}">${catLabels[f.cat]}</div>
+      <div class="fi-name">${f.name}</div>
+      <div class="fi-expr">${f.expr}</div>
+      ${f.desc ? `<div class="fi-desc">${f.desc}</div>` : ''}
+    </div>`).join('');
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  drawHeroCanvas();
+  calcIntegral();
+  setTimeout(() => { initDiceBars(); calcProb(); }, 100);
+  renderFormulas();
+});
+window.addEventListener('resize', () => {
+  const active = document.querySelector('.page.active');
+  if (!active) return;
+  const id = active.id;
+  if (id === 'page-turev') drawTurev();
+  if (id === 'page-istatistik') { calcStats(); drawNormal(); }
+  if (id === 'page-lineer') calcVector();
+  drawHeroCanvas();
+});
+</script>
+</body>
+</html>
